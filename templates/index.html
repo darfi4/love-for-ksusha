@@ -7,20 +7,30 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <div id="blackScreen" class="screen">
-        <div class="instruction">Нажми ПРОБЕЛ чтобы начать</div>
+    <!-- Чёрный экран без надписей -->
+    <div id="blackScreen" class="screen"></div>
+
+    <!-- Сцена с 3D сердцем -->
+    <div id="heartScene" class="scene hidden">
+        <div class="heart-3d" id="heart3d">
+            <div class="heart-front">💖</div>
+            <div class="heart-back">💖</div>
+            <div class="heart-left">💖</div>
+            <div class="heart-right">💖</div>
+            <div class="heart-top">💖</div>
+            <div class="heart-bottom">💖</div>
+        </div>
+        <div class="cursor-dot"></div>
     </div>
 
-    <div id="heartContainer" class="hidden">
-        <div class="heart" id="mainHeart">💖</div>
+    <!-- Эффекты после клика -->
+    <div id="loveScene" class="scene hidden">
+        <canvas id="loveCanvas"></canvas>
+        <div id="loveText" class="love-text"></div>
+        <div class="floating-hearts"></div>
     </div>
 
-    <div id="effectsContainer" class="hidden">
-        <div id="loveMessages"></div>
-        <div id="particles"></div>
-        <div id="fireworks"></div>
-    </div>
-
+    <!-- Аудио -->
     <audio id="loveSound" preload="auto">
         <source src="https://assets.mixkit.co/sfx/preview/mixkit-romantic-heart-beat-1215.mp3" type="audio/mpeg">
     </audio>

@@ -1,163 +1,216 @@
 document.addEventListener('DOMContentLoaded', function() {
     const blackScreen = document.getElementById('blackScreen');
-    const heartContainer = document.getElementById('heartContainer');
-    const effectsContainer = document.getElementById('effectsContainer');
-    const mainHeart = document.getElementById('mainHeart');
-    const loveMessages = document.getElementById('loveMessages');
-    const particles = document.getElementById('particles');
-    const fireworks = document.getElementById('fireworks');
+    const heartScene = document.getElementById('heartScene');
+    const loveScene = document.getElementById('loveScene');
+    const heart3d = document.getElementById('heart3d');
+    const cursorDot = document.querySelector('.cursor-dot');
+    const loveCanvas = document.getElementById('loveCanvas');
+    const loveText = document.getElementById('loveText');
+    const floatingHearts = document.querySelector('.floating-hearts');
     const loveSound = document.getElementById('loveSound');
 
-    let mouseX = 0;
-    let mouseY = 0;
+    const ctx = loveCanvas.getContext('2d');
+    let mouseX = 0, mouseY = 0;
+    let particles = [];
+    let isHeartHovered = false;
 
-    // Следим за движением мыши для 3D эффекта
+    // Настройка canvas
+    function setupCanvas() {
+        loveCanvas.width = window.innerWidth;
+        loveCanvas.height = window.innerHeight;
+    }
+
+    // Кастомный курсор
     document.addEventListener('mousemove', (e) => {
         mouseX = e.clientX;
         mouseY = e.clientY;
+        cursorDot.style.left = mouseX + 'px';
+        cursorDot.style.top = mouseY + 'px';
         
-        if (!heartContainer.classList.contains('hidden')) {
-            updateHeartPosition();
+        if (!heartScene.classList.contains('hidden')) {
+            updateHeartRotation();
         }
     });
 
-    function updateHeartPosition() {
-        const heartRect = mainHeart.getBoundingClientRect();
+    // 3D вращение сердца
+    function updateHeartRotation() {
+        const heartRect = heart3d.getBoundingClientRect();
         const heartX = heartRect.left + heartRect.width / 2;
         const heartY = heartRect.top + heartRect.height / 2;
         
-        const deltaX = (mouseX - heartX) * 0.02;
-        const deltaY = (mouseY - heartY) * 0.02;
+        const rotateY = (mouseX - heartX) * 0.1;
+        const rotateX = -(mouseY - heartY) * 0.1;
         
-        mainHeart.style.transform = `translate(-50%, -50%) perspective(1000px) rotateY(${deltaX}deg) rotateX(${-deltaY}deg) scale(1.1)`;
+        heart3d.style.transform = `rotateY(${rotateY}deg) rotateX(${rotateX}deg)`;
+        
+        // Проверка наведения на сердце
+        const distance = Math.sqrt(Math.pow(mouseX - heartX, 2) + Math.pow(mouseY - heartY, 2));
+        isHeartHovered = distance < 100;
+        
+        if (isHeartHovered) {
+            heart3d.classList.add('glow');
+            cursorDot.style.transform = 'translate(-50%, -50%) scale(2)';
+            cursorDot.style.background = '#ff69b4';
+        } else {
+            heart3d.classList.remove('glow');
+            cursorDot.style.transform = 'translate(-50%, -50%) scale(1)';
+            cursorDot.style.background = '#ff0080';
+        }
     }
 
-    // Обработка нажатия пробела
+    // Нажатие пробела
     document.addEventListener('keydown', (e) => {
-        if (e.code === 'Space' && blackScreen.style.display !== 'none') {
+        if (e.code === 'Space' && !blackScreen.classList.contains('hidden')) {
             e.preventDefault();
-            showHeart();
+            showHeartScene();
         }
     });
 
-    function showHeart() {
+    // Клик по чёрному экрану
+    blackScreen.addEventListener('click', showHeartScene);
+
+    function showHeartScene() {
         blackScreen.classList.add('hidden');
-        heartContainer.classList.remove('hidden');
-        
-        // Запускаем отслеживание положения мыши
-        setInterval(updateHeartPosition, 16);
+        heartScene.classList.remove('hidden');
+        heart3d.classList.add('pulse');
     }
 
-    // Обработка клика на сердечко
-    mainHeart.addEventListener('click', startLoveEffects);
+    // Клик по сердцу
+    heart3d.addEventListener('click', startLoveEffects);
 
-    function startLoveEffects() {
-        heartContainer.classList.add('hidden');
-        effectsContainer.classList.remove('hidden');
-        
-        // Запускаем звук
-        loveSound.play();
-        
-        // Запускаем все эффекты
-        showLoveMessages();
-        createParticles();
-        createFireworks();
-        showFinalMessage();
-    }
-
-    const messages = [
-        "Ксюша, ты моё солнце! ☀️",
-        "Я люблю тебя больше всего! 💖",
-        "Ты самая красивая! 🌸",
-        "Моё сердце бьётся для тебя! 💓",
-        "Ты делаешь меня счастливым! 😊",
-        "Вместе навсегда! 🌟",
-        "Ты моя мечта! 💫",
-        "Любовь моя бесконечна! ∞",
-        "Каждый день с тобой - праздник! 🎉",
-        "Ты самое лучшее что со мной случилось! 💕"
+    const loveMessages = [
+        "Ксюша, ты моё всё 💖",
+        "Каждая твоя улыбка - это солнце в моей жизни ☀️",
+        "Ты делаешь этот мир прекраснее 🌸",
+        "Моё сердце принадлежит тебе навсегда 💞",
+        "В твоих глазах я вижу наше будущее ✨",
+        "Ты самая лучшая девушка на свете 🌟",
+        "Я счастлив, что ты в моей жизни 💫",
+        "Любовь к тебе растёт с каждым днём 🌹",
+        "Ты моя самая большая мечта 💝",
+        "Вместе мы создаём нашу историю 💑",
+        "Ты вдохновляешь меня становиться лучше 🌈",
+        "Каждая минута с тобой - подарок 🎁",
+        "Ты самая красивая 💐",
+        "Моя любовь к тебе бесконечна ♾️",
+        "Ты - причина моего счастья 😊"
     ];
 
-    function showLoveMessages() {
-        messages.forEach((message, index) => {
-            setTimeout(() => {
-                const messageElement = document.createElement('div');
-                messageElement.textContent = message;
-                messageElement.className = 'love-message';
-                messageElement.style.left = Math.random() * 80 + 10 + '%';
-                messageElement.style.animationDelay = Math.random() * 2 + 's';
-                loveMessages.appendChild(messageElement);
-                
-                // Удаляем сообщение после анимации
-                setTimeout(() => {
-                    messageElement.remove();
-                }, 4000);
-            }, index * 800);
-        });
+    function startLoveEffects() {
+        heartScene.classList.add('hidden');
+        loveScene.classList.remove('hidden');
+        
+        setupCanvas();
+        loveSound.play();
+        
+        startParticleSystem();
+        showLoveMessages();
+        createFloatingHearts();
     }
 
-    function createParticles() {
-        for (let i = 0; i < 200; i++) {
-            setTimeout(() => {
-                const particle = document.createElement('div');
-                particle.className = 'particle';
-                particle.style.left = Math.random() * 100 + '%';
-                particle.style.top = Math.random() * 100 + '%';
-                particle.style.background = getRandomColor();
-                particle.style.setProperty('--tx', (Math.random() - 0.5) * 200 + 'px');
-                particle.style.setProperty('--ty', (Math.random() - 0.5) * 200 + 'px');
-                particles.appendChild(particle);
-                
-                setTimeout(() => particle.remove(), 2000);
-            }, i * 20);
+    // Система частиц
+    function startParticleSystem() {
+        particles = [];
+        
+        function createParticle() {
+            particles.push({
+                x: Math.random() * loveCanvas.width,
+                y: Math.random() * loveCanvas.height,
+                size: Math.random() * 3 + 1,
+                speedX: (Math.random() - 0.5) * 2,
+                speedY: (Math.random() - 0.5) * 2,
+                color: `hsl(${Math.random() * 360}, 100%, 70%)`
+            });
         }
-    }
 
-    function createFireworks() {
-        setInterval(() => {
-            const fireworkCount = 50;
-            const centerX = Math.random() * window.innerWidth;
-            const centerY = Math.random() * window.innerHeight;
+        // Создаем начальные частицы
+        for (let i = 0; i < 100; i++) {
+            createParticle();
+        }
+
+        function animateParticles() {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+            ctx.fillRect(0, 0, loveCanvas.width, loveCanvas.height);
             
-            for (let i = 0; i < fireworkCount; i++) {
-                const firework = document.createElement('div');
-                firework.className = 'firework';
-                firework.style.left = centerX + 'px';
-                firework.style.top = centerY + 'px';
-                firework.style.background = getRandomColor();
-                firework.style.setProperty('--fx', (Math.random() - 0.5) * 300 + 'px');
-                firework.style.setProperty('--fy', (Math.random() - 0.5) * 300 + 'px');
-                fireworks.appendChild(firework);
+            particles.forEach((particle, index) => {
+                ctx.beginPath();
+                ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+                ctx.fillStyle = particle.color;
+                ctx.fill();
                 
-                setTimeout(() => firework.remove(), 1500);
+                particle.x += particle.speedX;
+                particle.y += particle.speedY;
+                
+                // Отскакивание от границ
+                if (particle.x < 0 || particle.x > loveCanvas.width) particle.speedX *= -1;
+                if (particle.y < 0 || particle.y > loveCanvas.height) particle.speedY *= -1;
+                
+                // Иногда добавляем новые частицы
+                if (Math.random() < 0.02) {
+                    createParticle();
+                }
+                
+                // Удаляем старые частицы
+                if (particles.length > 200) {
+                    particles.splice(index, 1);
+                }
+            });
+            
+            requestAnimationFrame(animateParticles);
+        }
+        
+        animateParticles();
+    }
+
+    // Показ сообщений
+    function showLoveMessages() {
+        let messageIndex = 0;
+        
+        function showNextMessage() {
+            if (messageIndex < loveMessages.length) {
+                loveText.textContent = loveMessages[messageIndex];
+                loveText.style.opacity = '1';
+                
+                setTimeout(() => {
+                    loveText.style.opacity = '0';
+                    setTimeout(() => {
+                        messageIndex++;
+                        showNextMessage();
+                    }, 500);
+                }, 3000);
+            } else {
+                // Финальное сообщение
+                loveText.innerHTML = "Ксюша, я тебя очень сильно люблю!<br>Ты самое дорогое, что есть в моей жизни 💖";
+                loveText.style.opacity = '1';
+                loveText.style.fontSize = '42px';
             }
-        }, 1000);
+        }
+        
+        showNextMessage();
     }
 
-    function showFinalMessage() {
-        setTimeout(() => {
-            const finalMessage = document.createElement('div');
-            finalMessage.innerHTML = "Ксюша, я тебя люблю!<br>Ты самое дорогое что у меня есть! 💝";
-            finalMessage.style.cssText = `
-                position: absolute;
-                top: 50%;
-                left: 50%;
-                transform: translate(-50%, -50%);
-                font-size: 48px;
-                color: #ff69b4;
-                text-align: center;
-                text-shadow: 0 0 20px #ff0080;
-                animation: pulse 2s infinite;
-            `;
-            effectsContainer.appendChild(finalMessage);
-        }, messages.length * 800 + 1000);
+    // Плавающие сердца
+    function createFloatingHearts() {
+        setInterval(() => {
+            const heart = document.createElement('div');
+            heart.className = 'floating-heart';
+            heart.textContent = '💖';
+            heart.style.left = Math.random() * 100 + '%';
+            heart.style.color = `hsl(${Math.random() * 360}, 100%, 70%)`;
+            heart.style.animationDuration = (Math.random() * 3 + 4) + 's';
+            
+            floatingHearts.appendChild(heart);
+            
+            setTimeout(() => {
+                heart.remove();
+            }, 6000);
+        }, 300);
     }
 
-    function getRandomColor() {
-        const colors = ['#ff0080', '#ff69b4', '#ff1493', '#dc143c', '#ff0066'];
-        return colors[Math.floor(Math.random() * colors.length)];
-    }
-
-    // Добавляем клик по черному экрану как альтернативу пробелу
-    blackScreen.addEventListener('click', showHeart);
+    // Ресайз canvas
+    window.addEventListener('resize', () => {
+        if (!loveScene.classList.contains('hidden')) {
+            setupCanvas();
+        }
+    });
 });
