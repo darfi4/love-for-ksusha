@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Для Ксюши 💖</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div id="blackScreen" class="screen">
+        <div class="instruction">Нажми ПРОБЕЛ чтобы начать</div>
+    </div>
+
+    <div id="heartContainer" class="hidden">
+        <div class="heart" id="mainHeart">💖</div>
+    </div>
+
+    <div id="effectsContainer" class="hidden">
+        <div id="loveMessages"></div>
+        <div id="particles"></div>
+        <div id="fireworks"></div>
+    </div>
+
+    <audio id="loveSound" preload="auto">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-romantic-heart-beat-1215.mp3" type="audio/mpeg">
+    </audio>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
